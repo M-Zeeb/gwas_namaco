@@ -1,0 +1,8 @@
+
+1. Add samples to bucket and implement upload for testing
+2. Create dummy Phenotype data, real SHCS data not allowed on bucket
+3. Dynamic parallelisation in "foreach-steps" depending on available cores
+4. Mamba package installations often get stuck at random points...
+5. Consider split in two parts:
+    1. Blast, codon alignment, apd score in single sample tool
+    2. Alignment, pca, gwas in global tool
