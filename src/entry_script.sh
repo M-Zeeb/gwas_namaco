@@ -160,7 +160,7 @@ awk '/^>/{flag=(index($0,"HXB2")>0)?1:0} !flag' ./for_alignment_nt/for_alignment
 sed '/^>/! s/[-*!]//g' ./for_alignment_nt/for_alignment_whole_temp2.fa > ./for_alignment_nt/for_alignment_whole.fa
 rm ./for_alignment_nt/*temp*.fa
 
-#mafft --localpair --maxiterate 1000 --thread 64 \
+#mafft --localpair --maxiterate 1000 --thread 64 \ better alignment, but takes too long locally
 mafft --thread 32 --threadtb 8 \
     --add ./for_alignment_nt/for_alignment_whole.fa \
     ./references_seqs/hxb2_wga.fa \

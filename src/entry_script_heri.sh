@@ -48,7 +48,7 @@ if [[ -z "$ref_seq" ]]; then
   #echo "Error: --s for reference sequence is required"
   #exit 1
   echo "No reference seq given, default used"
-  ref_seq="heri_input/HIV1_REF_2023_pol_DNA.fa"
+  ref_seq="utility/references_seqs/HIV1_REF_D_only_2023_pol_DNA.fa"
 fi
 
 if [[ -z "$phenotype_files" ]]; then

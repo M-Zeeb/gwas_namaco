@@ -53,14 +53,14 @@ pheno_data <- pheno_data %>%
 
 pheno_data <- merge(pheno_data,
                     alignment_for_filter,
-                    by.x = "id",
+                    by.x = "ID",
                     by.y = "V1",
                     all = FALSE
                     )
 
 pheno_data <- pheno_data %>%
     mutate(V2 = as.numeric(V2)) %>%
-    group_by(id) %>%
+    group_by(ID) %>%
     arrange(desc(V2), .by_group = TRUE) %>%
     slice(1) %>%
     ungroup()
@@ -68,7 +68,7 @@ pheno_data <- pheno_data %>%
 ##Drop sequences without pheno data
 lineage_tree$tip.label = gsub("/.+", "", lineage_tree$tip.label)
 lineage_tree <- drop.tip(lineage_tree,
-                        lineage_tree$tip.label[!(lineage_tree$tip.label %in% pheno_data$id |
+                        lineage_tree$tip.label[!(lineage_tree$tip.label %in% pheno_data$ID |
                                                 lineage_tree$tip.label == "Ref.D.TZ.01.A280.AY253311"
                                                 )
                                             ]
@@ -78,7 +78,7 @@ lineage_tree <- root(lineage_tree, "Ref.D.TZ.01.A280.AY253311")
 
 #save phenotype data
 pheno_data <- pheno_data %>%
-    filter(id %in% lineage_tree$tip.label)
+    filter(ID %in% lineage_tree$tip.label)
 
 
 formula <- formula(paste0(pheno, " ~ ", paste(heri_covariables, collapse = " + ")))
@@ -88,7 +88,7 @@ pheno_data[, paste0(pheno, "_res")] <- lm_res$residuals
 
 pheno_data <- pheno_data %>%
     mutate(fid = 0) %>%
-    select(fid, id, pheno, paste0(pheno, "_res"))
+    select(fid, ID, pheno, paste0(pheno, "_res"))
 
 #save filtered tree
 write.tree(lineage_tree, paste0("./phylos/tree_poumm_", pheno, ".treefile"))

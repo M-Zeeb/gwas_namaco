@@ -3,7 +3,7 @@
 """
 Created on Mon Jun 20 09:55:03 2022
 
-@author: mariuszeeb
+@author: adapted from https://gist.github.com/philiptzou/8d6c7c61d2242f730a1a2f87ba9a2a72; https://doi.org/10.1371/journal.pone.0225352; https://doi.org/10.1093/bioinformatics/16.4.400
 """
 
 # Hypermut
@@ -121,18 +121,6 @@ def hypermut(refseq, naseq, patterns=DEFAULT_PATTERNS):
         num_potential_ctrls,
         oddsratio,
         p)
-
-
-# def main():
-#   if len(sys.argv) != 2:
-#      print('Usage: {} <FASTA_FILE>'.format(sys.argv[0]),
-#           file=sys.stderr)
-#    exit(1)
-# fasta_filename = "/Users/mariuszeeb/Downloads/bamtrial/hypertest.fa" #sys.argv[1]
-# sequences = list(fasta_reader(fasta_filename))
-
-# for _, naseq in sequences:
-#   print(hypermut(refseq, naseq, DEFAULT_PATTERNS))
 
 def main():
     if len(sys.argv) != 3:

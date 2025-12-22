@@ -86,7 +86,6 @@ AAtoNT = function(region,
     ##NT seqs
 
     if (uuid_name != paste0("HXB2_", toupper(region))) {
-      print(uuid_name)
       NT <- Biostrings::readBStringSet(paste0(
         "codon_align/",
         paste(c("codon_align", region,"NT/"), collapse = "_"),
@@ -352,10 +351,8 @@ AAtoNT = function(region,
     colnames(depth_ps) = gsub("_G", "", colnames(depth_ps))
     ##remove orginal depths and add formatted ones
     aligned_freq <- aligned_freq %>% select(-contains("depth"))
-    print("5")
     ##combine sequence name, frequencies, and sequencing depth
     aligned_freq <- cbind(uuid_name, aligned_freq, depth_ps)
-    print("6")
     ##combine all sequences
     freq_aligned_all <- bind_rows(freq_aligned_all, aligned_freq)
     

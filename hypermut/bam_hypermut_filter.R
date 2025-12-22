@@ -1,7 +1,4 @@
 ###################
-# Dependencies:
-# - see Install_R_Packages.R, install-dependencies and Dockerfile
-
 # Input folders:
 # Note: sample name must be ffffffff-ffff-ffff-ffff-ffffffffffff
 # - raw_bam // contains sample.bam
@@ -56,16 +53,11 @@ path_to_sam = "samtools"
 ##datapath to hypermut python script
 path_to_hyper = "./hypermut.py"
 #########################
-#uuids = read.csv("/Users/mariuszeeb/Downloads/LLV_uuids_rna_dna.csv", sep = ";")
-##define uuids you want to run
-#uuids = c(uuids$uuid.rna[c(1,2,4,5,6)])
 
 ##sammtools doesnt work in R, shell issue...
 ##copy into terminal
-##maybeneed to add samtools to path with: "export PATH=/Users/mariuszeeb/Documents/samtools/bin:$PATH"
 ##run to sort bam file
-i="ffffffff-ffff-ffff-ffff-ffffffffffff"
-# for(i in uuids){
+i="bam_file_name"
 
   system(paste0(path_to_sam," sort ./raw_bam/",i,".bam -o ./sorted_index_bam/",i,"_sorted.bam"))
   system(paste0(path_to_sam," index ./sorted_index_bam/",i,"_sorted.bam"))
@@ -87,8 +79,6 @@ i="ffffffff-ffff-ffff-ffff-ffffffffffff"
   initial_formating$width = bam_terst[[1]][["qwidth"]]
   initial_formating$cigar = bam_terst[[1]][["cigar"]]
   
-  
-  
   initial_formating = initial_formating %>% mutate(chars = str_count(cigar,"[A-Z]+"))
   
   initial_formating = initial_formating %>% mutate(counts = paste0(str_extract_all(cigar, "[0-9]+"))) %>% 
@@ -99,8 +89,6 @@ i="ffffffff-ffff-ffff-ffff-ffffffffffff"
     mutate(charcs = gsub("\"|)","",charcs)) %>%
     mutate(charcs = gsub("c\\(","",charcs)) %>%
     separate(charcs, into = paste("charsc",1:max(.$chars), sep = "_"), sep = ",") 
-  
-  
   
   initial_formating = initial_formating %>%
     mutate_at(vars(grep("count",names(.))),~ifelse(is.na(.),0,.)) %>%
@@ -140,15 +128,17 @@ i="ffffffff-ffff-ffff-ffff-ffffffffffff"
 
   ##reference consensus for bam file
   fasta_msa = as.data.frame(readDNAStringSet(paste0("./map_fasta_cons/",i,".fa")))
+  
   ##original
   fasta_org = fasta_msa %>%
     mutate(n = nchar(x)) %>%
     separate(x, into = paste("pos", 0:(max(.$n)), sep = ""), sep = "") %>%
     select(-pos0,-n) %>% mutate(id_org = rownames(.)) %>% pivot_longer(!id_org,names_to = "position_org", values_to = "base_org")
+  
   ##read
-  foralign = c(readDNAStringSet(paste0("./map_fasta_cons/",i,".fa")),readDNAStringSet(paste0("./hxb2/",i,".fa")))
+  foralign = c(readDNAStringSet(paste0("./map_fasta_cons/",i,".fa")),readDNAStringSet(paste0("./hxb2.fa")))
   aligned = muscle::muscle(foralign)
-  #writeXStringSet(as(aligned, "DNAStringSet"), file="/Users/mariuszeeb/Downloads/align_check.fa")
+
   ##aligned with hxb2
   fasta_align = as.data.frame(as(aligned, "DNAStringSet")) %>%
     mutate(n = nchar(x)) %>%
@@ -207,14 +197,13 @@ i="ffffffff-ffff-ffff-ffff-ffffffffffff"
   
   hyyperr = hyyperr %>% separate(col = muts,sep = ",", into = paste0("V",seq(1:6))) 
   ##read hypermut results
-  #hyyperr = read.csv("/Users/mariuszeeb/Downloads/bamtrial/hypermuts_7751.txt", header = FALSE)
   ##extract hypermut p value
   hypermut_ready$hyper_p = as.numeric(gsub(")","",hyyperr$V6))
   hypermut_ready$bam = i
   
   ##save bam summary
   write.csv(hypermut_ready,paste0("./bamsummary/",i,"rna_ref_bam_summary.csv"))
-  dyn_thr = read.csv("./dynamic_threshold.csv", header = TRUE) # expected columns: thr,pos
+  dyn_thr = read.csv("./dynamic_threshold.1.csv", header = TRUE) # expected columns: thr,pos
   hypermut_filter = hypermut_ready %>% merge(.,dyn_thr[,c("thr","pos")], by.x = "midpos", by.y = "pos", all.x = TRUE, all.y = FALSE) %>% 
     mutate(threshold = ifelse(is.na(thr),0.8,thr)) %>%
     mutate(filterflag = hyper_p > threshold) %>% group_by(id) %>% arrange(as.numeric(id))

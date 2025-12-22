@@ -2,31 +2,21 @@
 
 ## Repository for dockerized pipelines of HIV GWAS and heriatibility analyses for the manuscript published in xxx...
 
-### GWAS Requirements:
+### Performs HIV GWAS and Heritability analysis 
+#### Requirements (see folder input for example (created with "create_example_data.R")):
  1. A folder with frequencey files from smaltalign output
 
  2. A phenotype file
 
  3. File with outcomes defined
 
- 4. FIles with covariables defined
+ 4. Files with covariables defined
 
-### Heritability Requirements:
- 1. A folder with consensus fasta files
+### If docker is installed, complete example analysis can be run by executing "run.sh"
+### Without docker manual installation of all software is required (see DOCKERFILE)
 
- 2. A phenotype file
+### Issues/TODO
 
- 3. File with outcomes defined
+ 1. Dynamic parallelisation in "foreach-steps" depending on available cores
 
- 4. FIles with covariables defined
-
-### TODO
- 1. Generate/add example data
-
- 2. Dynamic parallelisation in "foreach-steps" depending on available cores
-
- 3. Mamba package installations often get stuck at random points...
-
- 4. Generalize bam_hypermut_filter.R script
-
- 5. Check necessary references
+ 2. Mamba package installations often get stuck at random points...

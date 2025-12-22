@@ -47,14 +47,14 @@ filter_tree <- function(lineage_tree, pheno, pheno_data) {
 
   pheno_data <- merge(pheno_data,
     alignment_for_filter,
-    by.x = "id",
+    by.x = "ID",
     by.y = "V1",
     all = FALSE
   )
 
   pheno_data <- pheno_data %>%
     mutate(V2 = as.numeric(V2)) %>%
-    group_by(id) %>%
+    group_by(ID) %>%
     arrange(desc(V2), .by_group = TRUE) %>%
     slice(1) %>%
     ungroup()
@@ -62,7 +62,7 @@ filter_tree <- function(lineage_tree, pheno, pheno_data) {
   ## Drop sequences without pheno data
   lineage_tree <- drop.tip(
     lineage_tree,
-    lineage_tree$tip.label[!(lineage_tree$tip.label %in% pheno_data$id |
+    lineage_tree$tip.label[!(lineage_tree$tip.label %in% pheno_data$ID |
       lineage_tree$tip.label == "Ref.D.TZ.01.A280.AY253311"
     )]
   )
@@ -156,7 +156,7 @@ xtt_data_general <- function(pheno, pheno_data) {
       next
     }
 
-    clusters_dists <- clusters_extracted %>% select(id = tipsnames, cluster = cluster_name_maxtips_temp)
+    clusters_dists <- clusters_extracted %>% select(ID = tipsnames, cluster = cluster_name_maxtips_temp)
 
     clusters_dists <- clusters_dists %>%
       group_by(cluster) %>%
@@ -164,7 +164,7 @@ xtt_data_general <- function(pheno, pheno_data) {
       filter(n > 1)
 
     clusters_dists <- clusters_dists %>%
-      select(id, cluster)
+      select(ID, cluster)
 
     write.csv(
       clusters_dists,
@@ -228,9 +228,9 @@ heritabilities <- foreach(i = c(0.1, 0.2, 0.09, seq(0.03, 0.06, 0.01)), .errorha
 
   clusters_mm <- clusters_mm %>%
     mutate(cluster_new = cur_group_id(), .by = "cluster") %>%
-    select(id, cluster = cluster_new)
+    select(ID, cluster = cluster_new)
 
-  pheno_data_tmp <- merge(pheno_data, clusters_mm, by = "id", all = FALSE)
+  pheno_data_tmp <- merge(pheno_data, clusters_mm, by = "ID", all = FALSE)
 
   pheno_data_tmp$cluster <- paste0("cl_", pheno_data_tmp$cluster)
   pheno_data_tmp$cluster <- factor(pheno_data_tmp$cluster, levels = sort(unique(pheno_data_tmp$cluster)))
