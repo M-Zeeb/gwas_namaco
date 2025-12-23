@@ -202,6 +202,7 @@ for gene in "${genes[@]}" whole; do
     ##linkage
     plink2 --pfile hivp2_pheno2 \
                 --geno 0.2 --nonfounders --indep-pairwise 50 10 0.5 \
+                --bad-ld \
                 --out gcta_${gene}_exclude
   
     ##save for gcta

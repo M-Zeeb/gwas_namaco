@@ -188,8 +188,8 @@ region_set <- function(msa, covar_data, maf, minref) {
 
 ##function to combined subfuctions
 gwas_ready_formatting_final <- function(region,
-                                       maf = 10,
-                                       minref = 20,
+                                       maf = 5,
+                                       minref = 10,
                                        wga_pca = TRUE) {
   
   ##geno type formatting (genotype file and hxb2 position relation as two output tables)
@@ -227,6 +227,6 @@ gwas_ready_formatting_final <- function(region,
 # 3. RUN GWAS preformatting
 # ---------------------------
 
-gwas_ready_formatting_final(region,  maf = 10, minref = 20, wga_pca = TRUE)
+gwas_ready_formatting_final(region,  maf = 5, minref = 10, wga_pca = TRUE)
 
 print(sessionInfo())

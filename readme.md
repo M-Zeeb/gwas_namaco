@@ -4,7 +4,7 @@
 
 ### Performs HIV GWAS and Heritability analysis 
 #### Requirements (see folder input for example (created with "create_example_data.R")):
- 1. A folder with frequencey files from smaltalign output
+ 1. A folder with frequencey files from smaltalign or any BAM mpileup output
 
  2. A phenotype file
 

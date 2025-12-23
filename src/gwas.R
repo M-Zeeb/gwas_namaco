@@ -313,7 +313,7 @@ gwas_AA_set <- read.csv(paste0("gwas_data/", region, "_gwas_data.csv"))
 gwas_AA_idx <- read.csv(paste0("gwas_data/", region, "_seq_idx.csv"))
 
 gwas_outcomes <- readLines("phenotype_files/phenotype_outcome.txt")
-gwas_covariables <- readLines("phenotype_files/phenotype_covariables.txt")
+gwas_covariables <- readLines("phenotype_files/phenotype_covariables.txt")#[c(1,2,15,16,17)]
 
 gwas_res <- foreach(outcome = gwas_outcomes, .combine = "rbind") %dopar% {
   gwas_lm_multi_var(gwas_AA_set, outcome, gwas_covariables)

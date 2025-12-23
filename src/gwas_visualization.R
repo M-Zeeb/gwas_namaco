@@ -46,12 +46,13 @@ manhattan_gg <- function(data, multiple_testing_threshold) {
         x = dna,
         y = p.value,
         size = size_p,
-        colour = region,
-        shape = pheno
+        colour = pheno,
+        shape = region
         )) +
         xlab(paste0("HIV genome [Base position]")) +
         ylab("Significance [-log10(pvalue)]") +
         geom_hline(yintercept = multiple_testing_threshold) +
+        scale_shape_manual(values = c(16, 17, 15, 3, 7, 8, 9, 10, 11)) +
         theme_minimal() +
         labs(colour = "", shape = "") +
         ylim(0, 6.1) +
@@ -183,4 +184,4 @@ gwases <- bind_rows(gwases)
 
 welp <- manhattan_gg(gwases, -log10(0.05))
 
-ggsave(welp, filename = paste0("results/gwas_manhattan.png"), width = 15, height = 5)
+ggsave(welp, filename = paste0("results/gwas_manhattan.png"), width = 30, height = 15)
