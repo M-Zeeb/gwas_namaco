@@ -12,7 +12,7 @@
 
  4. Files with covariables defined
 
-### If docker is installed, complete example analysis can be run by executing "run.sh"
+### If docker is installed, complete example analysis can be run by 1. renaming the folder "input_example" to "input" and 2. executing "run.sh"
 ### Without docker manual installation of all software is required (see DOCKERFILE)
 
 ### Issues/TODO
