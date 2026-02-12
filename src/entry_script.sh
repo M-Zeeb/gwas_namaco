@@ -129,22 +129,35 @@ echo "Successfully calculated APD scores"
 echo "Creating gene wise alignments"
 echo "############################"
 
+## Check if there are at least two sequences for each gene in the codon_align/codon_align_${gene}_AA/ directory, if not skip the following steps for that gene
+filtered_genes=()
+
+for gene in "${genes[@]}"; do
+  seqs=$(find "./codon_align/codon_align_${gene}_AA/" -maxdepth 1 -type f -name "*.fa" | wc -l)
+
+  if [[ "$seqs" -lt 2 ]]; then
+    echo "No sequences found for ${gene} in codon_align/codon_align_${gene}_AA/. Skipping following steps for this gene."
+  else
+    filtered_genes+=("$gene")
+  fi
+done
+
+genes=("${filtered_genes[@]}")
+
+
 # Alignment Genes
 for gene in "${genes[@]}"; do
+    
     cat ./codon_align/codon_align_${gene}_AA/*.fa > ./for_alignment_aa/for_alignment_${gene}_temp1.fa
     awk '/^>/{flag=(index($0,"HXB2")>0)?1:0} !flag' ./for_alignment_aa/for_alignment_${gene}_temp1.fa > ./for_alignment_aa/for_alignment_${gene}_temp2.fa
     sed '/^>/! s/[-*!]//g' ./for_alignment_aa/for_alignment_${gene}_temp2.fa > ./for_alignment_aa/for_alignment_${gene}.fa
     rm ./for_alignment_aa/*temp*.fa
-done
 
-for gene in "${genes[@]}"; do
     mafft --localpair --maxiterate 1000 --thread 64 \
     --add ./for_alignment_aa/for_alignment_${gene}.fa \
         ./references_seqs/hxb2_${gene}_aa.fa \
     > ./alignment_aa/alignment_${gene}.fa
-done
 
-for gene in "${genes[@]}"; do
     Rscript ${src_path}/aa_to_nt.R $gene
 done
 

@@ -30,7 +30,7 @@ registerDoParallel(cores = 8L)
 # ---------------------------
 
 ##blast----
-region_extract = function(uuids,region,ref_data_base) {
+region_extract <- function(uuids,region,ref_data_base) {
    #region = "pol"
    #ref_data_base = "hxx"
    #uuids = uuids$uuid
@@ -204,12 +204,15 @@ exon_merge(uuids, "tat")
 # 4. Codon alignment with MACSE
 # ---------------------------
 
-for(region in c("env","pol","gag","vif","nef","vpu","vpr")){
+for(region in c("env", "pol", "gag", "vif", "nef", "vpu", "vpr")){
 
   uuids = read.csv(paste0("blastmeta/blastmeta_",region,".csv")) %>%
     filter(!is.na(Alignment.Length)) %>%
     select(QueryID)
-
+  if(nrow(uuids) == 0){
+    print(paste0("No sequences for ", region))
+    next
+  }
   colnames(uuids) = "uuid"
 
   registerDoParallel(cores = 8L)
@@ -233,6 +236,11 @@ for(region in c("tat", "rev")){
 
     uuids = rbind(uuids1,uuids2)
     colnames(uuids) = "uuid"
+
+  if(nrow(uuids) == 0){
+    print(paste0("No sequences for ", region))
+    next
+  }
 
   foreach(x = unique(uuids$uuid)) %dopar% {
 

@@ -55,52 +55,54 @@ RUN conda config --prepend channels r
 ENV MAMBA_LOG_LEVEL=debug
 
 # hardcoded from known good build https://gitlab.shcs.ch/INF_NGS_DATABASE/medvir-smaltalign-container/-/jobs/170393
-RUN mamba install r-base==4.4 -vv
-RUN mamba install bioconductor-biostrings -vv
-RUN mamba install r-tidytable==0.11
+RUN mamba install r-base==4.4
+RUN mamba install bioconductor-biostrings==2.74.0
 RUN mamba install r-doParallel==1.0.17
-RUN mamba install r-iterators==1.0.14 
+RUN mamba install r-iterators==1.0.14
 RUN mamba install r-foreach==1.5.2
 RUN mamba install r-tidyselect==1.2.1
 RUN mamba install r-magrittr==2.0.3
 RUN mamba install r-cli==3.6.5
 RUN mamba install r-glue==1.8.0 
 RUN mamba install r-pillar==1.11.0
-RUN mamba install r-vctrs==0.6.5
+RUN mamba install r-vctrs==0.7.1
 RUN mamba install r-codetools==0.2-20
-RUN mamba install r-lifecycle==1.0.4
+RUN mamba install r-lifecycle==1.0.5
 RUN mamba install r-data.table==1.17.8
-RUN mamba install r-rlang==1.1.6
+RUN mamba install r-rlang==1.1.7
 RUN mamba install r-fastDummies==1.7.5
 RUN mamba install r-Rcpp==1.1.0 
 RUN mamba install r-Matrix==1.7-3
 RUN mamba install r-qdapTools==1.3.7
 RUN mamba install r-svMisc==1.4.3
 RUN mamba install r-glmnet==4.1-10
-RUN mamba install r-dplyr
-RUN mamba install r-rBLAST
-RUN mamba install r-devtools -vv
-RUN mamba install r-tidyr -vv
-RUN mamba install r-seqinr -vv
-RUN mamba install bioconductor-DECIPHER -vv
-RUN mamba install r-tidyverse -vv
-RUN mamba install r-AER -vv
-RUN mamba install r-ape -vv
-RUN mamba install r-phangorn -vv
-RUN mamba install r-ggrepel -vv
-RUN mamba install r-phytools -vv
-RUN mamba install r-phylolm -vv
-RUN mamba install r-lme4 -vv
-RUN R -e 'install.packages("lmerTest", repos = "https://cloud.r-project.org")'
+RUN mamba install r-dplyr==1.2.0
+RUN mamba install r-rBLAST==1.3.1
+RUN mamba install r-devtools==2.4.6
+RUN mamba install r-tidyr==1.3.2
+RUN mamba install r-seqinr==4.2-36
+RUN mamba install bioconductor-DECIPHER==3.2.0
+RUN mamba install r-tidyverse==2.0.0
+RUN mamba install r-AER==1.2.16
+RUN mamba install r-ape==5.8-1
+RUN mamba install r-phangorn==2.12.1
+RUN mamba install r-ggrepel==0.9.6
+RUN mamba install r-phytools==2.5.2
+RUN mamba install r-phylolm==2.6.5
+RUN mamba install r-lme4==1.1.38
+RUN mamba install r-tidytable==0.11.1
+RUN mamba install r-lmerTest==3.2-0
+#RUN R -e 'install.packages("tidytable", repos = "https://cloud.r-project.org")'
+#RUN R -e 'install.packages("lmerTest", repos = "https://cloud.r-project.org")'
 RUN R -e 'install.packages("POUMM", repos = "https://cloud.r-project.org")'
 
-RUN mamba install bioconda::macse -vv
+RUN mamba install bioconda::macse
 
-RUN mamba install mafft -vv
+RUN mamba install mafft
 
-RUN mamba install bioconda::plink -vv
-RUN mamba install bioconda::plink2 -vv
+RUN mamba install bioconda::plink
+RUN mamba install bioconda::plink2
 
-RUN mamba install eigensoft -vv
+RUN mamba install eigensoft
 
-RUN mamba install bioconda::iqtree -vv
+RUN mamba install bioconda::iqtree

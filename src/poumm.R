@@ -85,51 +85,51 @@ for(i in 1:3){
     ##phylogenetic mixed model comparision (is poumm better)? (take poumm_res from main poumm model below)
     #univariable
     specPMM <- specifyPMM(
-        pheno_data$pheno,
+        as.numeric(pheno_data$pheno),
         lineage_tree_bm,
         nSamplesMCMC = 9e5,
         parallelMCMC = TRUE
     )
     fitPMM <- POUMM(
-        pheno_data$pheno,
+        as.numeric(pheno_data$pheno),
         lineage_tree_bm,
         spec = specPMM,
         doMCMC = TRUE
     )
 
     specH2tMean <- specifyPOUMM_ATH2tMeanSeG0(
-        pheno_data$pheno,
+        as.numeric(pheno_data$pheno),
         lineage_tree,
         nSamplesMCMC = 9e5,
         parallelMCMC = TRUE
     )
     poumm_res <- POUMM::POUMM(
-        pheno_data$pheno,
+        as.numeric(pheno_data$pheno),
         lineage_tree, spec = list(nSamplesMCMC = 9e5, parallelMCMC = TRUE)
     )
 
     #Multivariable
     specPMM_multi <- specifyPMM(
-        pheno_data$pheno_res,
+        as.numeric(pheno_data$pheno_res),
         lineage_tree_bm,
         nSamplesMCMC = 9e5,
         parallelMCMC = TRUE
     )
     fitPMM_multi <- POUMM(
-        pheno_data$pheno_res,
+        as.numeric(pheno_data$pheno_res),
         lineage_tree_bm,
         spec = specPMM_multi,
         doMCMC = TRUE
     )
 
     specH2tMean_multi <- specifyPOUMM_ATH2tMeanSeG0(
-        pheno_data$pheno_res,
+        as.numeric(pheno_data$pheno_res),
         lineage_tree,
         nSamplesMCMC = 9e5,
         parallelMCMC = TRUE
     )
     poumm_res_multi <- POUMM::POUMM(
-        pheno_data$pheno_res,
+        as.numeric(pheno_data$pheno_res),
         lineage_tree,
         spec = list(nSamplesMCMC = 9e5, parallelMCMC = TRUE)
     )

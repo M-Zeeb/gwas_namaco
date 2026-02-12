@@ -71,11 +71,11 @@ foreach(freq_file = raw_seq_files) %dopar% {
                          third == "C" ~ paste0(third_f),
                          fourth == "C" ~ paste0(fourth_f))) %>%
     mutate(GAP = NA) %>%
-    dplyr::select(POS,A,C,G,T,GAP,COV)
+    dplyr::select(POS, A, C, G, T, GAP, COV)
 
   marytesat <- marytesat %>%
     pivot_longer(., cols = c("A", "C", "G", "T", "GAP") , names_to = "variable", values_to = "value") %>%
-    arrange(POS, match(variable, c("A", "C", "G","T", "GAP")))
+    arrange(POS, match(variable, c("A", "C", "G", "T", "GAP")))
 
   marytesat$variable <- as.character(marytesat$variable)
   marytesat$variable[which(marytesat$variable == "GAP")] <- "-"
@@ -108,12 +108,13 @@ foreach(fasta_file = freq_seq_files) %dopar% {
   cte <- cte %>%
     arrange(position, desc(frequency)) %>%
     slice(1, .by = position) %>%
-    mutate(variant = replace(variant, depth <= 20, "N")) %>% #coverage filter (alternatively just remove)
+    #mutate(variant = replace(variant, depth <= 5, "N")) %>% #coverage filter (alternatively just remove)
+    filter(depth >= 5) %>%
     dplyr::select(variant)
 
   fasta_internal_name <- gsub(paste0(freq_sequences_path,"|/|.csv"),"", fasta_file)
 
-  fasta <- paste0(">",fasta_internal_name,"\n",
+  fasta <- paste0(">", fasta_internal_name, "\n",
                  paste(cte$variant, collapse = ""))
 
   output_path <- gsub(freq_sequences_path, fasta_sequences_path, fasta_file)

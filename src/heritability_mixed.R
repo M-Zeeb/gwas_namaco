@@ -24,6 +24,7 @@ library(lme4)
 pheno_data <- read.csv("./phenotype_files/phenotype_file.csv")
 
 heri_covariables <- readLines("./phenotype_files/phenotype_covariables.txt")
+heri_covariables <- heri_covariables[!grep("PC", heri_covariables)]
 
 # ---------------------------
 # 2. Functions

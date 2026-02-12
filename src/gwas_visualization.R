@@ -55,7 +55,6 @@ manhattan_gg <- function(data, multiple_testing_threshold) {
         scale_shape_manual(values = c(16, 17, 15, 3, 7, 8, 9, 10, 11)) +
         theme_minimal() +
         labs(colour = "", shape = "") +
-        ylim(0, 6.1) +
         guides(
         size = FALSE,
         colour = guide_legend(override.aes = list(size = 5)),
@@ -95,7 +94,6 @@ manhattan_gg_visual <- function(data, multiple_testing_threshold) {
     geom_hline(yintercept = multiple_testing_threshold) +
     theme_minimal() +
     labs(colour = "", shape = "") +
-    ylim(0, 6.1) +
     guides(size = FALSE, colour = guide_legend(override.aes = list(
       size =
         5
@@ -182,6 +180,6 @@ which_gwas <- grep("gwas_clean", list.files("./results"), value = TRUE)
 gwases <- lapply(which_gwas, function(g) read.csv(paste0("./results/", g)))
 gwases <- bind_rows(gwases)
 
-welp <- manhattan_gg(gwases, -log10(0.05))
+manhattan_plot <- manhattan_gg(gwases, -log10(0.05))
 
-ggsave(welp, filename = paste0("results/gwas_manhattan.png"), width = 30, height = 15)
+ggsave(manhattan_plot, filename = paste0("results/gwas_manhattan.png"), width = 30, height = 15)

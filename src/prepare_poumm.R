@@ -26,6 +26,10 @@ alignment_for_filter <- Biostrings::readAAStringSet(paste0("./alignment_nt/align
 pheno_data <- read.csv("./phenotype_files/phenotype_file.csv")
 
 heri_covariables <- readLines("./phenotype_files/phenotype_covariables.txt")
+heri_covariables <- heri_covariables[!grep("PC", heri_covariables)]
+if(length(heri_covariables) == 0) {
+    heri_covariables <- 1
+}
 
 # ---------------------------
 # 2. Prepare data
