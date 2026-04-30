@@ -68,7 +68,6 @@ echo "############################"
 
 #Covariables
 
-
 #Create folder structure
 mkdir -p ${workingdirectory}/{raw_files,phenotype_files,freq_files,fasta_files,blasted_seqs,blastmeta,codon_align,results,for_alignment_aa,for_alignment_nt,alignment_aa,alignment_nt,alignment_basefreq,pca,gwas_data}
 
@@ -89,6 +88,7 @@ exons=("rev_exon1" "rev_exon2" "tat_exon1" "tat_exon2")
 #genes
 for gene in "${genes[@]}"; do
     mkdir -p "blasted_seqs/blasted_seqs_$gene"
+    mkdir -p "minimapped_paf/minimapped_paf_$gene"
     mkdir -p "codon_align/codon_align_${gene}_NT"
     mkdir -p "codon_align/codon_align_${gene}_AA"
     mkdir -p "pca/pca_${gene}"
@@ -96,6 +96,7 @@ done
 #exons
 for exon in "${exons[@]}"; do
     mkdir -p "blasted_seqs/blasted_seqs_$exon"
+    mkdir -p "minimapped_paf/minimapped_paf_$exon"
 done
 #whole
     mkdir -p "pca/pca_whole"
@@ -113,7 +114,7 @@ echo "Successfully created frequency files"
 echo "Performing blast, codon alignments, and APD score calculation"
 echo "############################"
 
-# Extract regions from each sequence with Blast and generate codon alignments 
+# Extract regions from each sequence with Blast/minimap2 and generate codon alignments 
 Rscript ${src_path}/codon_align.R "freq_files/" "fasta_files/"
 
 echo "############################"
@@ -170,7 +171,7 @@ echo "############################"
 
 cat ./fasta_files/*.fa > ./for_alignment_nt/for_alignment_whole_temp1.fa
 awk '/^>/{flag=(index($0,"HXB2")>0)?1:0} !flag' ./for_alignment_nt/for_alignment_whole_temp1.fa > ./for_alignment_nt/for_alignment_whole_temp2.fa
-sed '/^>/! s/[-*!]//g' ./for_alignment_nt/for_alignment_whole_temp2.fa > ./for_alignment_nt/for_alignment_whole.fa
+sed '/^>/! s/[-*!nN]//g' ./for_alignment_nt/for_alignment_whole_temp2.fa > ./for_alignment_nt/for_alignment_whole.fa
 rm ./for_alignment_nt/*temp*.fa
 
 #mafft --localpair --maxiterate 1000 --thread 64 \ better alignment, but takes too long locally
@@ -247,9 +248,6 @@ done
 
 #PCA with smartpca
 
-# activate environment for eigensoft
-#source activate eigensoft
-
 for gene in "${genes[@]}" whole; do
 
     cd pca/pca_$gene
@@ -290,9 +288,6 @@ for gene in "${genes[@]}" whole; do
 
 done
 
-# activate environment for eigensoft
-#conda deactivate
-
 #GWAS 
 for gene in "${genes[@]}"; do
     #pre formatting
@@ -300,5 +295,7 @@ for gene in "${genes[@]}"; do
     # run GWAS
     Rscript ${src_path}/gwas.R $gene
 done
+Rscript ${src_path}/gwas_preformatting.R "whole"
+Rscript ${src_path}/gwas.R "whole"
 
 Rscript ${src_path}/gwas_visualization.R

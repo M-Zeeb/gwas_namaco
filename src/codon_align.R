@@ -29,12 +29,13 @@ registerDoParallel(cores = 8L)
 # 2. Functions
 # ---------------------------
 
-##blast----
-region_extract <- function(uuids,region,ref_data_base) {
+## blast----
+region_extract <- function(uuids, region, ref_data_base) {
    #region = "pol"
    #ref_data_base = "hxx"
-   #uuids = uuids$uuid
-  
+   #uuids = "0b513236-5f01-49d8-9e5d-f7e8cf17f4dc"
+   #fasta_sequences_path = "fasta_files/"
+
   outputpath <- paste0("blasted_seqs/blasted_seqs_",region,"/")
   
   ##BLAST database
@@ -61,11 +62,11 @@ region_extract <- function(uuids,region,ref_data_base) {
     seq_df = as.data.frame(Biostrings::readDNAStringSet(paste0(fasta_sequences_path,i,".fa")))
 
     ##BLAST
-
     blast_seq = tryCatch({predict(bl, seq, BLAST_args = "-max_target_seqs 2000 -evalue 4000")}, 
              error = function(e) {
                 print("why")
                 })
+    #blast_seq %>% arrange(desc(length))
 
     if("X1" %in% colnames(blast_seq)){
       colnames(blast_seq) <- c("QueryID","SubjectID","Perc.Ident","Alignment.Length","Mismatches","Gap.Openings","Q.start","Q.end","S.start","S.end","E","Bits")
@@ -95,7 +96,7 @@ region_extract <- function(uuids,region,ref_data_base) {
     }
 
     ##seems to be the most practical to sort for length and then for E score
-    blast_seq <- blast_seq %>% arrange(desc(Alignment.Length),E) %>% slice(1)
+    blast_seq <- blast_seq %>% arrange(desc(Alignment.Length), E) %>% slice(1)
     #blast_seq$Q.end[1] = 5101
     ##MERGE BLAST with raw sequence
     seq_df %>%
@@ -111,6 +112,117 @@ region_extract <- function(uuids,region,ref_data_base) {
   }
   write.csv(blastmeta,
             paste0(paste(c("blastmeta/blastmeta",region),collapse = "_"),".csv"),
+            row.names = FALSE)
+}
+
+## minimap ----
+region_extract_minimap <- function(uuids, region, ref_data_base) {
+  #  region = "pol"
+  #  ref_data_base = "hxx"
+  #  uuids = "0fc3e13d-29e3-4b37-a487-0a924890d410"
+  #  fasta_sequences_path = "fasta_files/"
+
+  outputpath <- paste0("blasted_seqs/blasted_seqs_", region, "/")
+  
+  ##MMI database
+  system(
+    paste0(
+      "minimap2 -k 8 -w 4 ",
+      "-d references_seqs/", ref_data_base, "_", region, ".mmi ",
+      "references_seqs/", ref_data_base, "_", region, ".fa"
+    )
+  )
+
+  minimapped_meta <- foreach(i = uuids, .combine = "rbind") %dopar%{
+    
+    #i = "0d5a6c44-b079-480a-96a1-ee7bdc6d2b7c"
+    # sequences (for later)
+    seq <- Biostrings::readDNAStringSet(paste0(fasta_sequences_path, i, ".fa"))
+    seq_df <- as.data.frame(Biostrings::readDNAStringSet(paste0(fasta_sequences_path, i, ".fa")))
+
+    # minimap
+    system(
+      paste0(
+        "minimap2 ",
+        "references_seqs/", ref_data_base, "_", region, ".mmi ",
+        fasta_sequences_path, i, ".fa", " > ",
+        "minimapped_paf/minimapped_paf_", region, "/", i, ".paf"
+      )
+    )
+
+    # read paf file
+      # PAF FORMAT
+      # 1 	string 	Query sequence name
+      # 2 	int 	Query sequence length
+      # 3 	int 	Query start (0-based; BED-like; closed)
+      # 4 	int 	Query end (0-based; BED-like; open)
+      # 5 	char 	Relative strand: "+" or "-"
+      # 6 	string 	Target sequence name
+      # 7 	int 	Target sequence length
+      # 8 	int 	Target start on original strand (0-based)
+      # 9 	int 	Target end on original strand (0-based)
+      # 10 	int 	Number of residue matches
+      # 11 	int 	Alignment block length
+      # 12 	int 	Mapping quality (0-255; 255 for missing)
+    tryCatch({
+      mapped_seq <- read.csv(paste0("minimapped_paf/minimapped_paf_", region, "/", i, ".paf"), sep = "\t", header = FALSE)
+      }, 
+             error = function(e) {
+                print(e$message)
+                })
+    
+    # if no file exists or empty, create empty dataframe
+    if (!exists("mapped_seq")) {
+      mapped_seq <- data.frame(matrix(NA, nrow = 0, ncol = 11))
+    }
+
+    colnames(mapped_seq)[1:11] <- c("QueryID", "Q.length", "Q.start", "Q.end", "Strand", "SubjectID", "S.length", "S.start", "S.end", "ResMatches", "Alignment.Length")
+
+    # to be compatible with blast output
+    mapped_seq <- mapped_seq %>%
+      mutate(
+        Q.start = ifelse(Q.start > 2, Q.start - 2, Q.start - Q.start),
+        Q.end = ifelse((Q.length - Q.end) > 2, Q.end + 2, Q.length),
+        Alignment.Length = Q.end - Q.start,
+        Perc.Ident = ResMatches / Alignment.Length * 100,
+        Mismatches = Alignment.Length - ResMatches,
+        Gap.Openings = NA,
+        E = NA,
+        Bits = NA
+        ) %>%
+      select(QueryID, SubjectID, Perc.Ident, Alignment.Length, Mismatches, Gap.Openings, Q.start, Q.end, S.start, S.end, E, Bits) %>%
+      as.data.frame()
+
+    mapped_seq <- mapped_seq %>%
+      filter(Perc.Ident >= 15) %>%
+      as.data.frame()
+
+    if (nrow(mapped_seq) == 0) {
+      mapped_seq[nrow(mapped_seq) + 1, ] <- NA
+      mapped_seq[1, 1] <- i
+      #next
+      return(mapped_seq)
+    }
+
+    ## take mapping with longest alignment
+    mapped_seq <- mapped_seq %>% 
+      arrange(desc(Alignment.Length)) %>% 
+      slice(1)
+
+    ##MERGE MINIMAPPED with raw sequence
+    seq_df %>%
+      mutate(reg_seq = substr(x, mapped_seq$Q.start, mapped_seq$Q.end)) %>%
+      mutate(forcsv = paste0(">", rownames(seq_df)[1], "\n", reg_seq)) %>% {
+      write.table(.$forcsv, paste0(outputpath, i, ".fa"),
+                  row.names = FALSE,
+                  quote = FALSE,
+                  col.names = FALSE)
+      }
+
+    return(mapped_seq)
+  }
+  write.csv(minimapped_meta,
+            paste0(paste(c("blastmeta/blastmeta", region), collapse = "_"),".csv"),
             row.names = FALSE)
 }
 
@@ -160,9 +272,9 @@ exon_merge = function(uuids,region){
 }
 
 ##MACSE----
-codon_align = function(uuids,region){
+codon_align = function(uuids, region){
 
-  inputpath = paste(c("blasted_seqs/blasted_seqs",region), collapse = "_")
+  inputpath = paste(c("blasted_seqs/blasted_seqs", region), collapse = "_")
 
   outputpath = paste0("codon_align/",paste(c("codon_align",region), collapse = "_"))
 
@@ -179,22 +291,24 @@ codon_align = function(uuids,region){
 # ---------------------------
 
 ##define list of uuids
-uuids = list.files(path = fasta_sequences_path)
-uuids = gsub("\\.fa","",uuids)
+uuids <- list.files(path = fasta_sequences_path)
+uuids <- gsub("\\.fa", "", uuids)
 
 ##Single (internally parallelized)
 ##extract regions via blast (reference subtype panel) ----
-region_extract(uuids,"pol","hxx")
-region_extract(uuids,"env","hxx")
-region_extract(uuids,"gag","hxx")
-region_extract(uuids,"vif","hxx")
-region_extract(uuids,"nef","hxx")
-region_extract(uuids,"vpu","hxx")
-region_extract(uuids,"vpr","hxx")
-region_extract(uuids,"tat_exon1","hxx")
-region_extract(uuids,"tat_exon2","hxx")
-region_extract(uuids,"rev_exon1","hxx")
-region_extract(uuids,"rev_exon2","hxx")
+# region_extract_minimap() with, more robust
+# region_extract() with blastn
+region_extract_minimap(uuids, "pol", "hxx")
+region_extract_minimap(uuids, "env", "hxx")
+region_extract_minimap(uuids, "gag", "hxx")
+region_extract_minimap(uuids, "vif", "hxx")
+region_extract_minimap(uuids, "nef", "hxx")
+region_extract_minimap(uuids, "vpu", "hxx")
+region_extract_minimap(uuids, "vpr", "hxx")
+region_extract_minimap(uuids, "tat_exon1", "hxx")
+region_extract_minimap(uuids, "tat_exon2", "hxx")
+region_extract_minimap(uuids, "rev_exon1", "hxx")
+region_extract_minimap(uuids, "rev_exon2", "hxx")
 
 ##merge exons from rev and tat (special case due to two codons)
 exon_merge(uuids, "rev")

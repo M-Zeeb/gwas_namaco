@@ -19,4 +19,4 @@
 
  1. Dynamic parallelisation in "foreach-steps" depending on available cores
 
- 2. Mamba package installations often get stuck at random points...
+ 2. GLM adaption (currently only linear models)

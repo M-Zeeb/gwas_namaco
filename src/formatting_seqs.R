@@ -13,9 +13,9 @@
 # Get command-line arguments
 args <- commandArgs(trailingOnly = TRUE)
 
-raw_sequences_path <- args[1]      
-freq_sequences_path <- args[2]  
-fasta_sequences_path <- args[3]  
+raw_sequences_path <- args[1]
+freq_sequences_path <- args[2]
+fasta_sequences_path <- args[3]
 
 print(args)
 
@@ -108,8 +108,8 @@ foreach(fasta_file = freq_seq_files) %dopar% {
   cte <- cte %>%
     arrange(position, desc(frequency)) %>%
     slice(1, .by = position) %>%
-    #mutate(variant = replace(variant, depth <= 5, "N")) %>% #coverage filter (alternatively just remove)
-    filter(depth >= 5) %>%
+    mutate(variant = replace(variant, depth <= 5, "N")) %>% #coverage filter (alternatively just remove)
+    #filter(depth >= 5) %>%
     dplyr::select(variant)
 
   fasta_internal_name <- gsub(paste0(freq_sequences_path,"|/|.csv"),"", fasta_file)

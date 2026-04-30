@@ -52,7 +52,7 @@ manhattan_gg <- function(data, multiple_testing_threshold) {
         xlab(paste0("HIV genome [Base position]")) +
         ylab("Significance [-log10(pvalue)]") +
         geom_hline(yintercept = multiple_testing_threshold) +
-        scale_shape_manual(values = c(16, 17, 15, 3, 7, 8, 9, 10, 11)) +
+        scale_shape_manual(values = c(16, 17, 15, 3, 7, 8, 9, 10, 11, 6)) +
         theme_minimal() +
         labs(colour = "", shape = "") +
         guides(
@@ -179,7 +179,24 @@ effective_test_size <- function(subtype, data, file_annote) {
 which_gwas <- grep("gwas_clean", list.files("./results"), value = TRUE)
 gwases <- lapply(which_gwas, function(g) read.csv(paste0("./results/", g)))
 gwases <- bind_rows(gwases)
+gwases <- gwases[gwases$p.value != 0, ]
 
-manhattan_plot <- manhattan_gg(gwases, -log10(0.05))
+manhattan_plot <- manhattan_gg(
+  gwases[gwases$region != "whole", ],
+ -log10(0.05 / nrow(gwases[gwases$region != "whole", ]))
+)
+ggsave(
+  manhattan_plot,
+  filename = paste0("results/gwas_manhattan.png"),
+  width = 30, height = 15
+)
 
-ggsave(manhattan_plot, filename = paste0("results/gwas_manhattan.png"), width = 30, height = 15)
+manhattan_plot_whole <- manhattan_gg(
+  gwases[gwases$region == "whole", ],
+ -log10(0.05 / nrow(gwases[gwases$region == "whole", ]))
+)
+ggsave(
+  manhattan_plot_whole,
+  filename = paste0("results/gwas_manhattan_whole.png"),
+  width = 30, height = 15
+)

@@ -1,6 +1,5 @@
 /input_namaco_aabs/*
 /output*
-/input/
-/input_org/
+/*_input*
 /heri*
 /phenotype_file_gm.csv

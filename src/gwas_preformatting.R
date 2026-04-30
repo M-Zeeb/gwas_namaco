@@ -193,7 +193,11 @@ gwas_ready_formatting_final <- function(region,
                                        wga_pca = TRUE) {
   
   ##geno type formatting (genotype file and hxb2 position relation as two output tables)
-  msa <- Biostrings::readAAStringSet(paste0("alignment_aa/alignment_",region,".fa"))
+  if (region == "whole") {
+    msa <- Biostrings::readAAStringSet(paste0("alignment_nt/alignment_",region,".fa"))
+  } else {
+     msa <- Biostrings::readAAStringSet(paste0("alignment_aa/alignment_",region,".fa"))
+  }
 
   msa <- reformat_seq_to_csv(msa)
   
@@ -227,6 +231,6 @@ gwas_ready_formatting_final <- function(region,
 # 3. RUN GWAS preformatting
 # ---------------------------
 
-gwas_ready_formatting_final(region,  maf = 5, minref = 10, wga_pca = TRUE)
+gwas_ready_formatting_final(region,  maf = 5, minref = 15, wga_pca = TRUE)
 
 print(sessionInfo())

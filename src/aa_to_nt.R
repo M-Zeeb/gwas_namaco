@@ -29,7 +29,7 @@ library(fastDummies)
 # 2. Define function
 # ---------------------------
 
-AAtoNT = function(region,
+AAtoNT <- function(region,
                   depth_threshold) {
   
   outputpath <- paste0("alignment_aa/")
@@ -48,17 +48,17 @@ AAtoNT = function(region,
   if (region %in% c("rev", "tat")) {
     blastmeta_1 <- read.csv(paste0("blastmeta/", paste(
       c("blastmeta", region, "exon1"), collapse = "_"
-    ), ".csv")) %>% na.omit()
+    ), ".csv")) %>% filter(QueryID %in% aa@ranges@NAMES)
     
     blastmeta_2 <- read.csv(paste0("blastmeta/", paste(
       c("blastmeta", region, "exon2"), collapse = "_"
-    ), ".csv")) %>% na.omit()
+    ), ".csv")) %>% filter(QueryID %in% aa@ranges@NAMES)
   }
   
   if (!region %in% c("rev", "tat")) {
     blastmeta <- read.csv(paste0("blastmeta/", paste(
       c("blastmeta", region), collapse = "_"
-    ), ".csv")) %>% na.omit()
+    ), ".csv")) %>% filter(QueryID %in% aa@ranges@NAMES)
   }
   
   nt_al_list <- list()
@@ -68,7 +68,7 @@ AAtoNT = function(region,
   for (uuid in 1:length(aa)) {
 
     uuid_name <- aa@ranges@NAMES[uuid]
-    
+
     aa_df <- as.data.frame(aa[uuid])
     
     aa_tab <- aa_df %>%
@@ -356,7 +356,6 @@ AAtoNT = function(region,
     ##combine all sequences
     freq_aligned_all <- bind_rows(freq_aligned_all, aligned_freq)
     
-    print(uuid_name)
   }
   
   file_name_output <- gsub("alignment_aa", "alignment_basefreq", file_name)
@@ -386,6 +385,6 @@ AAtoNT = function(region,
 # ---------------------------
 
 AAtoNT(region = region,
-       depth_threshold = 20)
+       depth_threshold = 4)
 
 print(sessionInfo())
